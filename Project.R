@@ -160,3 +160,51 @@ summary(song_data_twoway_anova)
 
 song_data_twoway_anova<- aov(acousticness ~ playlist_genre* playlist_subgenre, data= spotify_songs_data)
 summary(song_data_twoway_anova)
+
+
+#Basic visualization to understand the dataset
+#   Histogram to represent the dataset
+
+
+# Assuming your dataset is named "your_dataset"
+par(mfrow = c(1, 3))  
+
+hist(spotify_songs_data[, 21], main = names(spotify_songs_data)[21])
+hist(spotify_songs_data[, 23], main = names(spotify_songs_data)[23])
+hist(spotify_songs_data[, 22], main = names(spotify_songs_data)[22])
+hist(spotify_songs_data[, 20], main = names(spotify_songs_data)[20])
+hist(spotify_songs_data[, 19], main = names(spotify_songs_data)[19])
+hist(spotify_songs_data[, 18], main = names(spotify_songs_data)[18])
+hist(spotify_songs_data[, 17], main = names(spotify_songs_data)[17])
+hist(spotify_songs_data[, 16], main = names(spotify_songs_data)[16])
+
+
+boxplot(spotify_songs_data[, 21], main = names(spotify_songs_data)[21])
+boxplot(spotify_songs_data[, 23], main = names(spotify_songs_data)[23])
+boxplot(spotify_songs_data[, 22], main = names(spotify_songs_data)[22])
+boxplot(spotify_songs_data[, 20], main = names(spotify_songs_data)[20])
+boxplot(spotify_songs_data[, 19], main = names(spotify_songs_data)[19])
+boxplot(spotify_songs_data[, 18], main = names(spotify_songs_data)[18])
+boxplot(spotify_songs_data[, 17], main = names(spotify_songs_data)[17])
+boxplot(spotify_songs_data[, 16], main = names(spotify_songs_data)[16])
+
+
+#Creating a map to identify the missing data in each dataset
+
+if (!is.element("Amelia", installed.packages()[, 1])) {
+  install.packages("Amelia", dependencies = TRUE)
+}
+require("Amelia")
+missmap(spotify_songs_data, col = c("red", "grey"), legend = TRUE)
+
+#We now create a correlation plot
+
+if (!is.element("corrplot", installed.packages()[, 1])) {
+  install.packages("corrplot", dependencies = TRUE)
+}
+require("corrplot")
+
+
+corrplot(cor(spotify_songs_data[c(4,12,13,14,15,16,17,18,19,20,21,22,23)]), method = "circle")
+
+
