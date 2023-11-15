@@ -135,4 +135,28 @@ View(songs_data_cov)
 song_data_cor <- cor(spotify_songs_data[,c(4,12,13,14,15,16,17,18,19,20,21,22,23)])
 View(song_data_cor)
 
+#One way ANOVA to see if there are significant differences in the means of track
+#popularity across different genres
 
+song_data_oneway_anova <- aov(track_popularity ~ playlist_genre, data = spotify_songs_data)
+summary(song_data_oneway_anova)
+
+
+#Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on 
+#danceability of a song
+
+song_data_twoway_anova<- aov(danceability ~ playlist_genre* playlist_subgenre, data= spotify_songs_data)
+summary(song_data_twoway_anova)
+
+#Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on 
+#popularity of a song
+
+song_data_twoway_anova<- aov(track_popularity ~ playlist_genre* playlist_subgenre, data= spotify_songs_data)
+summary(song_data_twoway_anova)
+
+
+#Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on 
+#acousticness of a song
+
+song_data_twoway_anova<- aov(acousticness ~ playlist_genre* playlist_subgenre, data= spotify_songs_data)
+summary(song_data_twoway_anova)
