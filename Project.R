@@ -207,4 +207,91 @@ require("corrplot")
 
 corrplot(cor(spotify_songs_data[c(4,12,13,14,15,16,17,18,19,20,21,22,23)]), method = "circle")
 
+#We will now perform data Imputation. We will try and check for missing values and
+# try to remove them for data consistency.
 
+#First we will install the necessary packages to perform imputation
+
+if(!is.element("NHANES", installed.packages()[, 1])){
+  install.packages("NHANES", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+require("NHANES")
+
+
+if(!is.element("dplyr", installed.packages()[, 1])){
+  install.packages("dplyr", dependencies=TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+require("dplyr")
+
+
+if(!is.element("naniar", installed.packages()[, 1])){
+  install.packages("naniar", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+require("naniar")
+
+
+if(!is.element("mice", installed.packages()[, 1])){
+  install.packages("mince", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
+require("mice")
+
+
+if(!is.element("Amelia", installed.packages()[, 1])){
+  install.packages("Amelia", dependencies = TRUE,
+                   repos="https://cloud.r-project.org")
+}
+
+require("Amelia")
+
+#We now confirm if there are any missing values
+
+any_na(spotify_songs_data)
+
+
+#We check how many are missing
+
+n_miss(spotify_songs_data)
+
+
+#For clarity, we check what percentage of missing data is in the entire dataset
+
+prop_miss(spotify_songs_data)
+
+#How many missing values does each variable have
+
+spotify_songs_data %>% is.na() %>% colSums()
+
+
+#Checking the number and percentage of missing values grouped by each observation
+
+miss_var_summary(spotify_songs_data)
+
+
+miss_case_summary(spotify_songs_data)
+
+#Checking which variable contain the most missing values
+
+gg_miss_var(spotify_songs_data)
+
+
+
+#Checking where the missing values located(The shaded regions in the plot)
+
+vis_miss(spotify_songs_data)+ theme(axis.text.x = element_text(angle=80))
+
+
+#which combinations fo variables are missing together
+gg_miss_upset(spotify_songs_data)
+
+
+#creating a heatmap of missingness
+
+is.factor(spotify_songs_data$track_name)
