@@ -27,8 +27,34 @@
 library(readr)
 
 spotify_songs_data<-read_csv(
-  "data/spotify_songs.csv"
+  "data/spotify_songs.csv",
+  col_types = cols(
+    track_id = col_character(),
+    track_name = col_character(),
+    track_artist = col_character(),
+    track_popularity = col_double(),
+    track_album_id = col_character(),
+    track_album_name = col_character(),
+    track_album_release_date = col_character(),
+    playlist_name = col_character(),
+    playlist_id = col_character(),
+    playlist_genre = col_character(),
+    playlist_subgenre = col_character(),
+    danceability = col_double(),
+    energy = col_double(),
+    key = col_double(),
+    loudness = col_double(),
+    mode = col_factor(levels= c("0", "1")),
+    speechiness = col_double(),
+    acousticness = col_double(),
+    instrumentalness = col_double(),
+    liveness = col_double(),
+    valence = col_double(),
+    tempo = col_double(),
+    duration_ms = col_double()
+  )
 )
+
 
 View(spotify_songs_data)
 
@@ -100,11 +126,13 @@ summary(spotify_songs_data)
 #   can predict information about the population based on sample data. High variability
 #   means that the values are less consistent, thus making it harder to make predictions.
 
-sapply(spotify_songs_data[, c(4,12,13,14,15,16,17,18,19,20,21,22,23)], sd)
+sapply(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], class)
+
+sapply(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], sd)
 
 #Meassuring the variance of each variable
 
-sapply(spotify_songs_data[, c(4,12,13,14,15,16,17,18,19,20,21,22,23)], var)
+sapply(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], var)
 
 #Measuring the Kurtosis of each variable
 #   Kurtosis informs you of how often outliers occur in the results
@@ -116,23 +144,23 @@ if (!is.element("e1071", installed.packages()[, 1])) {
 }
 require("e1071")
 
-sapply(spotify_songs_data[, c(4,12,13,14,15,16,17,18,19,20,21,22,23)], kurtosis, type=2)
+sapply(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], kurtosis, type=2)
 
 
 #Measuring the skewness of each variable
 
-sapply(spotify_songs_data[, c(4,12,13,14,15,16,17,18,19,20,21,22,23)], skewness, type=2)
+sapply(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], skewness, type=2)
 
 
 #Measuring the relationship
 
-songs_data_cov <- cov(spotify_songs_data[, c(4,12,13,14,15,16,17,18,19,20,21,22,23)])
+songs_data_cov <- cov(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)])
 View(songs_data_cov)
 
 
 #Measuring correlation between variables
 
-song_data_cor <- cor(spotify_songs_data[,c(4,12,13,14,15,16,17,18,19,20,21,22,23)])
+song_data_cor <- cor(spotify_songs_data[,c(4,12,13,14,15,17,18,19,20,21,22,23)])
 View(song_data_cor)
 
 #One way ANOVA to see if there are significant differences in the means of track
@@ -166,10 +194,10 @@ summary(song_data_twoway_anova)
 #   Histogram to represent the dataset
 
 
-# Assuming your dataset is named "your_dataset"
+
 par(mfrow = c(1, 3))  
 
-hist(spotify_songs_data[, 21], main = names(spotify_songs_data)[21])
+hist(spotify_songs_data[, 4], main = names(spotify_songs_data)[4])
 hist(spotify_songs_data[, 23], main = names(spotify_songs_data)[23])
 hist(spotify_songs_data[, 22], main = names(spotify_songs_data)[22])
 hist(spotify_songs_data[, 20], main = names(spotify_songs_data)[20])
@@ -205,7 +233,7 @@ if (!is.element("corrplot", installed.packages()[, 1])) {
 require("corrplot")
 
 
-corrplot(cor(spotify_songs_data[c(4,12,13,14,15,16,17,18,19,20,21,22,23)]), method = "circle")
+corrplot(cor(spotify_songs_data[c(4,12,13,14,15,17,18,19,20,21,22,23)]), method = "circle")
 
 #We will now perform data Imputation. We will try and check for missing values and
 # try to remove them for data consistency.
@@ -295,3 +323,109 @@ gg_miss_upset(spotify_songs_data)
 #creating a heatmap of missingness
 
 is.factor(spotify_songs_data$track_name)
+
+#Now we will perfrom data Transformation necessary for improving the accuracy of 
+#the final model.
+
+if(!is.element("caret", installed.packages()[, 1])){
+  install.packages("caret", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+
+}
+require("caret")
+
+
+model_of_the_transform <- preProcess(spotify_songs_data, method=c("scale"))
+print(model_of_the_transform)
+
+spotify_songs_scale_transform <- predict(model_of_the_transform, spotify_songs_data)
+
+summary(spotify_songs_scale_transform)
+
+#Center Data Transformation
+
+#Before
+
+summary(spotify_songs_data)
+
+boxplot(spotify_songs_data[, 21], main = names(spotify_songs_data)[21])
+boxplot(spotify_songs_data[, 23], main = names(spotify_songs_data)[23])
+boxplot(spotify_songs_data[, 22], main = names(spotify_songs_data)[22])
+boxplot(spotify_songs_data[, 20], main = names(spotify_songs_data)[20])
+boxplot(spotify_songs_data[, 19], main = names(spotify_songs_data)[19])
+boxplot(spotify_songs_data[, 18], main = names(spotify_songs_data)[18])
+boxplot(spotify_songs_data[, 17], main = names(spotify_songs_data)[17])
+boxplot(spotify_songs_data[, 16], main = names(spotify_songs_data)[16])
+boxplot(spotify_songs_data[, 15], main = names(spotify_songs_data)[15])
+boxplot(spotify_songs_data[, 14], main = names(spotify_songs_data)[14])
+boxplot(spotify_songs_data[, 13], main = names(spotify_songs_data)[13])
+boxplot(spotify_songs_data[, 12], main = names(spotify_songs_data)[12])
+
+
+model_of_the_transform <- preProcess(spotify_songs_data, method = c("center"))
+print(model_of_the_transform)
+spotify_data_center_transform<- predict(model_of_the_transform, # nolint
+                                           spotify_songs_data)
+
+#After
+
+summary(spotify_data_center_transform)
+boxplot(spotify_data_center_transform[, 21], 
+        main = names(spotify_data_center_transform)[21])
+boxplot(spotify_data_center_transform[, 23], 
+        main = names(spotify_data_center_transform)[23])
+boxplot(spotify_data_center_transform[, 22], 
+        main = names(spotify_data_center_transform)[22])
+boxplot(spotify_data_center_transform[, 20], 
+        main = names(spotify_data_center_transform)[20])
+boxplot(spotify_data_center_transform[, 19], 
+        main = names(spotify_data_center_transform)[19])
+boxplot(spotify_data_center_transform[, 18], 
+        main = names(spotify_data_center_transform)[18])
+boxplot(spotify_data_center_transform[, 17], 
+        main = names(spotify_data_center_transform)[17])
+boxplot(spotify_data_center_transform[, 16], 
+        main = names(spotify_data_center_transform)[16])
+boxplot(spotify_data_center_transform[, 15], 
+        main = names(spotify_data_center_transform)[15])
+boxplot(spotify_data_center_transform[, 14], 
+        main = names(spotify_data_center_transform)[14])
+boxplot(spotify_data_center_transform[, 13], 
+        main = names(spotify_data_center_transform)[13])
+boxplot(spotify_data_center_transform[, 12], 
+        main = names(spotify_data_center_transform)[12])
+
+
+
+#Standadize data transformation
+
+#Before
+
+summary(spotify_songs_data)
+sapply(spotify_songs_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], sd)
+
+model_of_the_transform<- preProcess(spotify_songs_data,
+                                    method = c("scale", "center"))
+
+print(model_of_the_transform)
+spotify_data_standardize_transform<-predict(model_of_the_transform,
+                                           spotify_songs_data)
+
+#AFTER
+
+summary(spotify_data_standardize_transform)
+sapply(spotify_data_standardize_transform[, c(4,12,13,14,15,17,18,19,20,21,22,23)], sd)
+
+
+#Normalize data Transform
+
+summary(spotify_songs_data)
+model_of_the_transform <- preProcess(spotify_songs_data, method = c("range"))
+print(model_of_the_transform)
+spotify_data_normalize_transform <- predict(model_of_the_transform,
+                                            spotify_songs_data)
+
+summary(spotify_data_normalize_transform)
+
+
+
