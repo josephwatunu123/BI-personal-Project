@@ -428,4 +428,43 @@ spotify_data_normalize_transform <- predict(model_of_the_transform,
 summary(spotify_data_normalize_transform)
 
 
+#Splitting the dataset in a 75:25 train:test ratio
 
+train_index <- createDataPartition(spotify_songs_data$playlist_genre,p=0.75,list=FALSE)
+
+spotify_data_train<- spotify_songs_data[train_index, ]
+spotify_data_test<- spotify_songs_data[-train_index, ]
+
+spotify_data_model_nb <- 
+  e1071:: naiveBayes(playlist_genre ~ .,
+                     data=spotify_songs_data)
+
+
+prediction_nb_e1071 <-
+  predict(spotify_data_model_nb,
+          spotify_data_test[, c("track_id","track_name",
+                                "track_artist","track_popularity","track_album_id",
+                                "track_album_name","track_album_release_date",
+                                "playlist_name","playlist_id","playlist_subgenre","danceability",
+                                "energy","key","loudness","mode","speechiness",
+                                "acousticness", "instrumentalness", "liveness", "valence",
+                                "tempo", "duration_ms")])
+
+#viewing prediction results
+print(prediction_nb_e1071)
+caret::confusionMatrix(prediction_nb_e1071,
+                       spotify_data_test[, c("track_id","track_name",
+                                             "track_artist","track_popularity","track_album_id",
+                                             "track_album_name","track_album_release_date",
+                                             "playlist_name","playlist_id","playlist_subgenre","danceability",
+                                             "energy","key","loudness","mode","speechiness",
+                                             "acousticness", "instrumentalness", "liveness", "valence",
+                                             "tempo", "duration_ms")])
+
+plot(table(prediction_nb_e1071, spotify_data_test[, c("track_id","track_name",
+                                                      "track_artist","track_popularity","track_album_id",
+                                                      "track_album_name","track_album_release_date",
+                                                      "playlist_name","playlist_id","playlist_subgenre","danceability",
+                                                      "energy","key","loudness","mode","speechiness",
+                                                      "acousticness", "instrumentalness", "liveness", "valence",
+                                                      "tempo", "duration_ms")]))
