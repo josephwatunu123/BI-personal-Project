@@ -1,7 +1,11 @@
-# Project Name: A BI Exploration of Spotify Songs
-# Done by: Joseph Watunu Kamau
-# Institutiton: Strathmore University
-# Course name: Business Intelligence II
+|                                |                                                                  |
+|--------------------------------|------------------------------------------------------------------|
+| **Student ID Number and Name** | 127559 Joseph Kamau Watunu                                         |
+| **Group**                      | C                                                                |
+| **Course Code**                | BBT4206                                                          |
+| **Course Name**                | Business Intelligence II                                         |
+| **Program**                    | Bachelor of Business Information Technology                      |
+| **Semester Duration**          | 16<sup>th</sup> October 2023 to 28<sup>th</sup> November 2023 \| |
 
 
 # Dataset
@@ -491,5 +495,61 @@ train_index <- createDataPartition(spotify_sampled_data$playlist_genre,p=0.75,li
 
 spotify_data_train<- spotify_sampled_data[train_index, ]
 spotify_data_test<- spotify_sampled_data[-train_index, ]
+```
+Training the model
+
+```{r}
+spotify_data_model_nb <- 
+  e1071:: naiveBayes(playlist_genre ~ .,
+                     data=spotify_data_train)
+
+```
+
+Testing the trained model using testing dataset
+
+```{r}
+prediction_nb_e1071 <-
+  predict(spotify_data_model_nb,
+          spotify_data_test[, c("track_id","track_name",
+                                "track_artist","track_popularity","track_album_id",
+                                "track_album_name","track_album_release_date",
+                                "playlist_name","playlist_id","playlist_subgenre","danceability",
+                                "energy","key","loudness","mode","speechiness",
+                                "acousticness", "instrumentalness", "liveness", "valence",
+                                "tempo", "duration_ms","playlist_genre")])
+```
+viewing prediction results
+
+```{r}
+print(prediction_nb_e1071)
+```
+
+Test results using a confusion matrix
+```{r}
+caret::confusionMatrix(prediction_nb_e1071,
+                       spotify_data_test[,c("track_id","track_name",
+                                            "track_artist","track_popularity","track_album_id",
+                                            "track_album_name","track_album_release_date",
+                                            "playlist_name","playlist_id","playlist_subgenre","danceability",
+                                            "energy","key","loudness","mode","speechiness",
+                                            "acousticness", "instrumentalness", "liveness", "valence",
+                                            "tempo", "duration_ms","playlist_genre")]$playlist_genre)
+
+```
+
+```{r}
+
+plot(table(prediction_nb_e1071, spotify_data_test[, c("track_id","track_name",
+                                                      "track_artist","track_popularity",
+                                                      "track_album_id",
+                                                      "track_album_name","track_album_release_date",
+                                                      "playlist_name","playlist_id","playlist_subgenre",
+                                                      "danceability",
+                                                      "energy","key","loudness","mode",
+                                                      "speechiness",
+                                                      "acousticness", "instrumentalness",
+                                                      "liveness", "valence",
+                                                      "tempo", "duration_ms","playlist_genre")]$playlist_genre))
+
 ```
 
