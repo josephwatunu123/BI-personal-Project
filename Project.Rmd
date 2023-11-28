@@ -1,28 +1,52 @@
-#Project Name: A BI Exploration of Spotify Songs
+# Project Name: A BI Exploration of Spotify Songs
+# Done by: Joseph Watunu Kamau
+# Institutiton: Strathmore University
+# Course name: Business Intelligence II
 
 
-#Dataset
+# Dataset
 #30000 spotify songs from Joakin Arvidsson on Kaggle.
-
-#Description
-#The data this week comes from Spotify via the spotifyr package. Charlie Thompson, Josiah Parry, 
-#Donal Phipps, and Tom Wolff authored this package to make it easier to get either your own data 
-#or general metadata arounds songs from Spotify's API. Make sure to check out the 
-#spotifyr package website to see how you can collect your own data!
-
-#Training vs Test data
-#We will train the model with 20000 songs and test it will 10000 songs.
-
-
-#Attributes information:
-
-
 #data source: https://www.kaggle.com/datasets/joebeachcapital/30000-spotify-songs
 
+# Description
+The data this week comes from Spotify via the spotifyr package. Charlie Thompson, Josiah Parry, 
+Donal Phipps, and Tom Wolff authored this package to make it easier to get either your own data 
+or general metadata arounds songs from Spotify's API. Make sure to check out the 
+spotifyr package website to see how you can collect your own data!
 
-#Transformation of the data:
+# Training vs Test data
+We will train and test the model in the ratio 70:30 train:test
 
-#First we will load the dataset
+# Attributes of the dataset
+As provided on Kaggle:
+variable class description
+track_id character Song unique ID
+track_name character Song Name
+track_artist character Song Artist
+track_popularity double Song Popularity (0-100) where higher is better
+track_album_id character Album unique ID
+track_album_name character Song album name
+track_album_release_date character Date when album released
+ playlist_name character Name of playlist -->
+ playlist_id character Playlist ID -->
+ playlist_genre character Playlist genre -->
+ playlist_subgenre character Playlist subgenre -->
+ danceability double Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable. -->
+ energy double Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy. -->
+ key double The estimated overall key of the track. Integers map to pitches using standard Pitch Class notation . E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on. If no key was detected, the value is -1. -->
+ loudness double The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typical range between -60 and 0 db. -->
+ mode double Mode indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0. -->
+ speechiness double Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks. -->
+ acousticness double A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic. 
+ instrumentalness double Predicts whether a track contains no vocals. "Ooh" and "aah" sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly "vocal". The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0.
+ liveness double Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live.
+ valence double A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).
+ tempo double The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration.
+ duration_ms double Duration of song in milliseconds 
+
+First we load the dataset
+
+```{r}
 
 library(readr)
 library(dplyr)
@@ -56,8 +80,10 @@ spotify_sampled_data<-read_csv(
   )
 )
 
-#Reducing the data to 10000 rows to enable performance
+```
 
+Due to current processing capability, we will reduce the dataset to 10000 columns
+```{r}
 spotify_sampled_data <- spotify_sampled_data %>% 
   sample_n(10000)
 
@@ -65,46 +91,41 @@ spotify_sampled_data <- spotify_sampled_data %>%
 View(spotify_sampled_data)
 
 dim(spotify_sampled_data)
+```
 
-#We will now Identify the data types in the datatset. ThiS will help us choose the
-#most efficient visualization types and algorithms that we can use.
-
+We will now Identify the data types in the datatset. ThiS will help us choose the
+most efficient visualization types and algorithms that we can use.
+```{r}
 sapply(spotify_sampled_data, class)
+```
 
-#Now we will perform descriptive statistics.
+Now we will perform descriptive statistics.
 
-#1. Measure of frequency.
 
-# Here we will try to understand number of instances that belong to each class.
-
+# 1.Measure of frequency.
+ Here we will try to understand number of instances that belong to each class.
+```{r}
 song_data_genre_freq<- spotify_sampled_data$playlist_genre
 cbind(frequency=table(song_data_genre_freq),
       percentage=prop.table(table(song_data_genre_freq))*100)
 
-#Here we can see that we have:
-# 6043 edm
-# 5155 latin
-# 5507 pop
-# 5431 r&b
-# 5746 rap
-# 4951 rock
-
 song_data_mode_freq <- spotify_sampled_data$mode
 cbind(frequency=table(song_data_mode_freq),
                  percentage=prop.table(table(song_data_mode_freq))*100)
+```
 
-#Here we can see the modality of the tracks are:
-# major- 18574 (1)
-# minor- 14259 (0)
 
+```{r}
 
 song_data_subgenre_freq <- spotify_sampled_data$playlist_subgenre
 cbind(frequency=table(song_data_subgenre_freq),
       percentage=prop.table(table(song_data_subgenre_freq))*100)
 
+```
 
-# Calculating the Mode
+# Calculating the mode
 
+```{r}
 song_data_genre_mode <- names(table(spotify_sampled_data$playlist_genre))[
   which(table(spotify_sampled_data$playlist_genre)==max(table(spotify_sampled_data$playlist_genre)))
 ]
@@ -121,89 +142,101 @@ song_playlistname_mode <- names(table(spotify_sampled_data$playlist_name))[
   which(table(spotify_sampled_data$playlist_name)==max(table(spotify_sampled_data$playlist_name)))
 ]
 print(song_playlistname_mode)
-
+```
 
 # Measuring the distribution of the data for each variable
-
+```{r}
 summary(spotify_sampled_data)
+```
 
-#Measuring the standard deviation of each variable
-#   Important point to note is Low variability is ideal because it means that you
-#   can predict information about the population based on sample data. High variability
-#   means that the values are less consistent, thus making it harder to make predictions.
+# Measuring the standard deviation of each variable
+Important point to note is Low variability is ideal because it means that you
+can predict information about the population based on sample data. High variability
+means that the values are less consistent, thus making it harder to make predictions.
 
+```{r}
 sapply(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], class)
 
 sapply(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], sd)
+```
 
-#Meassuring the variance of each variable
+# Meassuring the variance of each variable
 
+```{r}
 sapply(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], var)
+```
 
-#Measuring the Kurtosis of each variable
-#   Kurtosis informs you of how often outliers occur in the results
+# Measuring the Kurtosis of each variable
+Kurtosis informs you of how often outliers occur in the results
 
-#First we will install the necessary packages
+First we will install the necessary packages
+
+```{r}
 
 if (!is.element("e1071", installed.packages()[, 1])) {
   install.packages("e1071", dependencies = TRUE)
 }
 require("e1071")
+```
 
+```{r}
 sapply(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], kurtosis, type=2)
+```
 
+# Measuring the skewness of each variable
 
-#Measuring the skewness of each variable
-
+```{r}
 sapply(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], skewness, type=2)
+```
+# Measuring the relationships
 
-
-#Measuring the relationship
-
+```{r}
 songs_data_cov <- cov(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)])
 View(songs_data_cov)
+```
 
-
-#Measuring correlation between variables
+# Measuring correlation between variables
+```{r}
 
 song_data_cor <- cor(spotify_sampled_data[,c(4,12,13,14,15,17,18,19,20,21,22,23)])
 View(song_data_cor)
+```
 
-#One way ANOVA to see if there are significant differences in the means of track
-#popularity across different genres
+# One way ANOVA to see if there are significant differences in the means of track popularity across different genres
 
+```{r}
 song_data_oneway_anova <- aov(track_popularity ~ playlist_genre, data = spotify_sampled_data)
 summary(song_data_oneway_anova)
+```
 
+# Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on  danceability of a song
 
-#Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on 
-#danceability of a song
-
+```{r}
 song_data_twoway_anova<- aov(danceability ~ playlist_genre* playlist_subgenre, data= spotify_sampled_data)
 summary(song_data_twoway_anova)
+```
 
-#Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on 
-#popularity of a song
+# Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on  popularity of a song
 
+```{r}
 song_data_twoway_anova<- aov(track_popularity ~ playlist_genre* playlist_subgenre, data= spotify_sampled_data)
 summary(song_data_twoway_anova)
+```
 
+# Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on  acousticness of a song
 
-#Two-way ANOVA to test the impact of both playlist genre and playlist subgenre on 
-#acousticness of a song
-
+```{r}
 song_data_twoway_anova<- aov(acousticness ~ playlist_genre* playlist_subgenre, data= spotify_sampled_data)
 summary(song_data_twoway_anova)
+```
 
 
-#Basic visualization to understand the dataset
-#   Histogram to represent the dataset
+# Basic visualization to understand the dataset
+Histogram to represent the dataset
 
-
+```{r}
 
 par(mfrow = c(1, 3))  
-
-
 
 boxplot(spotify_sampled_data[, 21], main = names(spotify_sampled_data)[21])
 boxplot(spotify_sampled_data[, 23], main = names(spotify_sampled_data)[23])
@@ -213,30 +246,36 @@ boxplot(spotify_sampled_data[, 19], main = names(spotify_sampled_data)[19])
 boxplot(spotify_sampled_data[, 18], main = names(spotify_sampled_data)[18])
 boxplot(spotify_sampled_data[, 17], main = names(spotify_sampled_data)[17])
 boxplot(spotify_sampled_data[, 16], main = names(spotify_sampled_data)[16])
+```
 
-
-#Creating a map to identify the missing data in each dataset
-
+Creating a map to identify the missing data in each dataset
+loading necessary datasets
+```{r}
 if (!is.element("Amelia", installed.packages()[, 1])) {
   install.packages("Amelia", dependencies = TRUE)
 }
 require("Amelia")
 missmap(spotify_sampled_data, col = c("red", "grey"), legend = TRUE)
 
-#We now create a correlation plot
 
 if (!is.element("corrplot", installed.packages()[, 1])) {
   install.packages("corrplot", dependencies = TRUE)
 }
 require("corrplot")
+```
 
+We now create a correlation plot
 
+```{r}
 corrplot(cor(spotify_sampled_data[c(4,12,13,14,15,17,18,19,20,21,22,23)]), method = "circle")
+```
 
-#We will now perform data Imputation. We will try and check for missing values and
-# try to remove them for data consistency.
+We will now perform data Imputation. We will try and check for missing values and
+ try to remove them for data consistency.
 
-#First we will install the necessary packages to perform imputation
+First we will install the necessary packages to perform imputation
+
+```{r}
 
 if(!is.element("NHANES", installed.packages()[, 1])){
   install.packages("NHANES", dependencies = TRUE,
@@ -277,55 +316,71 @@ if(!is.element("Amelia", installed.packages()[, 1])){
 
 require("Amelia")
 
-#We now confirm if there are any missing values
+```
 
+We now confirm if there are any missing value
+```{r}
 any_na(spotify_sampled_data)
+```
+We check how many are missing
 
-
-#We check how many are missing
-
+```{r}
 n_miss(spotify_sampled_data)
+```
 
+For clarity, we check what percentage of missing data is in the entire dataset
 
-#For clarity, we check what percentage of missing data is in the entire dataset
-
+```{r}
 prop_miss(spotify_sampled_data)
+```
 
-#How many missing values does each variable have
+How many missing values does each variable have
 
+```{r}
 spotify_sampled_data %>% is.na() %>% colSums()
+```
 
+Checking the number and percentage of missing values grouped by each observation
 
-#Checking the number and percentage of missing values grouped by each observation
-
+```{r}
 miss_var_summary(spotify_sampled_data)
 
-
 miss_case_summary(spotify_sampled_data)
+```
 
-#Checking which variable contain the most missing values
+Checking which variable contain the most missing values
 
+```{r}
 gg_miss_var(spotify_sampled_data)
+```
 
+which combinations fo variables are missing together
 
-#which combinations fo variables are missing together
+```{r}
 gg_miss_upset(spotify_sampled_data)
+```
 
+creating a heatmap of missingness
 
-#creating a heatmap of missingness
-
+```{r}
 is.factor(spotify_sampled_data$track_name)
+```
 
-#Now we will perfrom data Transformation necessary for improving the accuracy of 
-#the final model.
 
+Now we will perfrom data Transformation necessary for improving the accuracy of 
+the final model.
+
+```{r}
 if(!is.element("caret", installed.packages()[, 1])){
   install.packages("caret", dependencies = TRUE,
                    repos = "https://cloud.r-project.org")
 
 }
 require("caret")
+```
 
+
+```{r}
 
 model_of_the_transform <- preProcess(spotify_sampled_data, method=c("scale"))
 print(model_of_the_transform)
@@ -333,11 +388,13 @@ print(model_of_the_transform)
 spotify_songs_scale_transform <- predict(model_of_the_transform, spotify_sampled_data)
 
 summary(spotify_songs_scale_transform)
+```
 
-#Center Data Transformation
+# Center Data Transform
 
-#Before
+Before
 
+```{r}
 summary(spotify_sampled_data)
 
 boxplot(spotify_sampled_data[, 21], main = names(spotify_sampled_data)[21])
@@ -353,13 +410,17 @@ boxplot(spotify_sampled_data[, 14], main = names(spotify_sampled_data)[14])
 boxplot(spotify_sampled_data[, 13], main = names(spotify_sampled_data)[13])
 boxplot(spotify_sampled_data[, 12], main = names(spotify_sampled_data)[12])
 
-
+```
+```{r}
 model_of_the_transform <- preProcess(spotify_sampled_data, method = c("center"))
 print(model_of_the_transform)
 spotify_data_center_transform<- predict(model_of_the_transform, # nolint
                                            spotify_sampled_data)
+```
 
-#After
+
+After
+```{r}
 
 summary(spotify_data_center_transform)
 boxplot(spotify_data_center_transform[, 21], 
@@ -386,13 +447,11 @@ boxplot(spotify_data_center_transform[, 13],
         main = names(spotify_data_center_transform)[13])
 boxplot(spotify_data_center_transform[, 12], 
         main = names(spotify_data_center_transform)[12])
+```
 
-
-
-#Standadize data transformation
-
-#Before
-
+# Standadize data transformation
+Before
+```{r}
 summary(spotify_sampled_data)
 sapply(spotify_sampled_data[, c(4,12,13,14,15,17,18,19,20,21,22,23)], sd)
 
@@ -402,15 +461,18 @@ model_of_the_transform<- preProcess(spotify_sampled_data,
 print(model_of_the_transform)
 spotify_data_standardize_transform<-predict(model_of_the_transform,
                                            spotify_sampled_data)
+```
 
-#AFTER
+After
 
+```{r}
 summary(spotify_data_standardize_transform)
 sapply(spotify_data_standardize_transform[, c(4,12,13,14,15,17,18,19,20,21,22,23)], sd)
+```
 
+# Normalize data Transform
 
-#Normalize data Transform
-
+```{r}
 summary(spotify_sampled_data)
 model_of_the_transform <- preProcess(spotify_sampled_data, method = c("range"))
 print(model_of_the_transform)
@@ -418,87 +480,16 @@ spotify_data_normalize_transform <- predict(model_of_the_transform,
                                             spotify_sampled_data)
 
 summary(spotify_data_normalize_transform)
+```
 
+# Splitting the dataset in a 75:25 train:test ratio
 
-#Splitting the dataset in a 75:25 train:test ratio
-
+```{r}
 str(spotify_sampled_data)
 
 train_index <- createDataPartition(spotify_sampled_data$playlist_genre,p=0.75,list=FALSE)
 
 spotify_data_train<- spotify_sampled_data[train_index, ]
 spotify_data_test<- spotify_sampled_data[-train_index, ]
-
-spotify_data_model_nb <- 
-  e1071:: naiveBayes(playlist_genre ~ .,
-                     data=spotify_data_train)
-
-
-#Testing the trained model using testing dataset
-prediction_nb_e1071 <-
-  predict(spotify_data_model_nb,
-          spotify_data_test[, c("track_id","track_name",
-                                "track_artist","track_popularity","track_album_id",
-                                "track_album_name","track_album_release_date",
-                                "playlist_name","playlist_id","playlist_subgenre","danceability",
-                                "energy","key","loudness","mode","speechiness",
-                                "acousticness", "instrumentalness", "liveness", "valence",
-                                "tempo", "duration_ms","playlist_genre")])
-
-#viewing prediction results
-print(prediction_nb_e1071)
-#Test results using a confusion matrix
-caret::confusionMatrix(prediction_nb_e1071,
-                       spotify_data_test[,c("track_id","track_name",
-                                            "track_artist","track_popularity","track_album_id",
-                                            "track_album_name","track_album_release_date",
-                                            "playlist_name","playlist_id","playlist_subgenre","danceability",
-                                            "energy","key","loudness","mode","speechiness",
-                                            "acousticness", "instrumentalness", "liveness", "valence",
-                                            "tempo", "duration_ms","playlist_genre")]$playlist_genre)
-
-plot(table(prediction_nb_e1071, spotify_data_test[, c("track_id","track_name",
-                                                      "track_artist","track_popularity",
-                                                      "track_album_id",
-                                                      "track_album_name","track_album_release_date",
-                                                      "playlist_name","playlist_id","playlist_subgenre",
-                                                      "danceability",
-                                                      "energy","key","loudness","mode",
-                                                      "speechiness",
-                                                      "acousticness", "instrumentalness",
-                                                      "liveness", "valence",
-                                                      "tempo", "duration_ms","playlist_genre")]$playlist_genre))
-
-
-#Classification: LDA with K-fold Cross Validation
-
-train_control <- trainControl(method = "CV", number = 5)
-
-spotify_data_model_lda <- caret::train(playlist_genre ~ track_popularity + playlist_id +
-                                         danceability + energy + loudness +
-                                         speechiness + acousticness + instrumentalness +
-                                         liveness + tempo,
-                                       data = spotify_data_train,
-                                       trControl = train_control,
-                                       na.action = na.omit, method = "lda2", metric = "Accuracy")
-
-    
- 
-#Accuracy and Cohen's Kappa
-#applying 5-fold corss validation resampling method
-
-
-
-#Decision tree for the classification problem
-
-if (require("rpart")) {
-  require("rpart")
-} else {
-  install.packages("rpart", dependencies = TRUE,
-                   repos = "https://cloud.r-project.org")
-}
-
-
-spotify_model_rpart <- rpart(playlist_genre~ ., data=spotify_data_train)
-
+```
 
